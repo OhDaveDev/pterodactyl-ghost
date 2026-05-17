@@ -5,7 +5,7 @@
     "name": "Ghost CMS",
     "author": "Razboy20@razboy.dev",
     "description": "Runs a Ghost CMS Web Server through pterodactyl.",
-    "image": "ghcr.io/OhDaveDev/pterodactyl-ghost:main",
+    "image": "ghcr.io/ohdavedev/pterodactyl-ghost:main",
     "startup": "{{STARTUP_CMD}}",
     "config": {
         "files": "{\r\n    \"caddy/Caddyfile\": {\r\n        \"parser\": \"file\",\r\n        \"find\": {\r\n            \"    http_port \": \"    http_port {{server.build.default.port}}\",\r\n            \"    https_port \": \"    https_port {{server.build.default.port}}\",\r\n            \"example.com {\": \":{{server.build.default.port}} {\"\r\n        }\r\n    }\r\n}",
@@ -15,7 +15,7 @@
     },
     "scripts": {
         "installation": {
-            "script": "apk --no-cache add git\r\ncd \/mnt\/server\/\r\ngit clone https:\/\/github.com\/OhDaveDev\/pterodactyl-ghost .\/temp\r\nchmod +x .\/temp\/install.sh\r\n\r\n.\/temp\/install.sh\r\n\r\nrm -rf .\/temp",
+            "script": "apk --no-cache add git\r\ncd \/mnt\/server\/\r\ngit clone https:\/\/github.com\/ohdavedev\/pterodactyl-ghost .\/temp\r\nchmod +x .\/temp\/install.sh\r\n\r\n.\/temp\/install.sh\r\n\r\nrm -rf .\/temp",
             "container": "node:22-alpine",
             "entrypoint": "ash"
         }
