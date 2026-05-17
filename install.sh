@@ -56,7 +56,7 @@ chmod +x /mnt/server/caddy-server /mnt/server/start.sh
 ln -s /mnt/server/.ghost /.ghost
 
 echo "🚀 Installing Ghost..."
-su -s /bin/ash "nobody" -c "ghost install local --no-start --no-enable --no-prompt --dir /home/container/ghost --process local"
+su -s /bin/ash "nobody" -c "ghost install local --dir /home/container/ghost"
 
 unlink /.ghost
 
