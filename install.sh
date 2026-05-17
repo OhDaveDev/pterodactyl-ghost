@@ -35,7 +35,6 @@ node -v
 
 echo "🗂️ Updating node packages"
 npm outdated
-ncu -g -u
 npm update -g
 
 echo "📦 Installing Ghost CLI..."
