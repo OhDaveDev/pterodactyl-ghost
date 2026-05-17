@@ -16,8 +16,8 @@ echo "🧰 Installing dependencies..."
 apk --no-cache add sudo curl
 apk add --no-cache 'su-exec>=0.2'
 
-echo "⬇️  Downloading Node.js 22.13.1..."
-curl -fsSL https://unofficial-builds.nodejs.org/download/release/v22.13.1/node-v22.13.1-linux-x64-musl.tar.xz -o node.tar.xz
+echo "⬇️  Downloading Node.js 22.22.2..."
+curl -fsSL https://unofficial-builds.nodejs.org/download/release/v22.22.2/node-v22.22.2-linux-x64-musl.tar.xz -o node.tar.xz
 
 echo "📦 Extracting Node.js..."
 tar -xf node.tar.xz -C /usr/local --strip-components=1
