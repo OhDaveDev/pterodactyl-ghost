@@ -111,7 +111,7 @@ su -s /bin/ash nobody -c '
   export npm_config_cache=/home/container/.cache/npm
   export PATH="/usr/local/bin:$PATH"
 
-  ghost install --dir /home/container/ghost
+  ghost install local--dir /home/container/ghost
 '
 
 echo "🗂️ DEBUG 13"
