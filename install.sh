@@ -59,7 +59,7 @@ echo "🗂️ DEBUG 8"
 
 echo "🗂️ Setting up directories..."
 mkdir -p /.npm /.cache/yarn /home/container /mnt/server/.ghost
-chmod -R 755 /.npm /.cache/yarn /.cache/node/corepack/v1 /home/container /mnt/server/.ghost
+chmod -R 755 /.npm /.cache/yarn /.cache/node/corepack /home/container /mnt/server/.ghost
 chown -R nobody: /mnt/server /home/container /.npm /.cache/yarn
 
 echo "🗂️ DEBUG 9"
