@@ -7,6 +7,8 @@
 #cd ./ghost && ghost start &
 #./caddy-server run --watch --config ./caddy/Caddyfile
 
+
+
 ghost ls
 echo "Starting Ghost..."
 cd ./ghost && ghost start &

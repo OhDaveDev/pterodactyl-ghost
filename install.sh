@@ -86,7 +86,7 @@ ln -s /mnt/server/.ghost /.ghost
 echo "🗂️ DEBUG 12"
 
 echo "🚀 Installing Ghost..."
-su -s /bin/ash "nobody" -c "ghost install local --dir /home/container/ghost"
+su -s /bin/ash "nobody" -c "ghost install --dir /home/container/ghost"
 
 echo "🗂️ DEBUG 13"
 
