@@ -57,6 +57,8 @@ npm i --no-audit -g ghost-cli@latest
 
 echo "📦 Installing Corepack..."
 npm i -g corepack@latest
+corepack enable
+corepack prepare pnpm@latest --activate
 
 echo "🗂️ DEBUG 8"
 
