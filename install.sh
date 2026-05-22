@@ -55,6 +55,9 @@ echo "🗂️ DEBUG 7"
 echo "📦 Installing Ghost CLI..."
 npm i --no-audit -g ghost-cli@latest
 
+echo "📦 Installing Corepack..."
+npm i -g corepack@latest
+
 echo "🗂️ DEBUG 8"
 
 echo "🗂️ Setting up directories..."
