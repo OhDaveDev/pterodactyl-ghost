@@ -63,9 +63,27 @@ corepack prepare pnpm@latest --activate
 echo "🗂️ DEBUG 8"
 
 echo "🗂️ Setting up directories..."
-mkdir -p /.npm /.cache/yarn /home/container /mnt/server/.ghost
-chmod -R 755 /.npm /.cache/yarn /home/container /mnt/server/.ghost
-chown -R nobody: /mnt/server /home/container /.npm /.cache/yarn
+mkdir -p \
+  /.npm \
+  /.cache/yarn \
+  /home/container \
+  /home/container/.cache \
+  /home/container/.cache/node \
+  /home/container/.cache/corepack \
+  /home/container/.local/share/corepack \
+  /mnt/server/.ghost
+
+chmod -R 755 \
+  /.npm \
+  /.cache/yarn \
+  /home/container \
+  /mnt/server/.ghost
+
+chown -R nobody: \
+  /mnt/server \
+  /home/container \
+  /.npm \
+  /.cache/yarn
 
 echo "🗂️ DEBUG 9"
 
@@ -86,7 +104,15 @@ ln -s /mnt/server/.ghost /.ghost
 echo "🗂️ DEBUG 12"
 
 echo "🚀 Installing Ghost..."
-su -s /bin/ash "nobody" -c "ghost install --dir /home/container/ghost"
+su -s /bin/ash nobody -c '
+  export HOME=/home/container
+  export XDG_CACHE_HOME=/home/container/.cache
+  export COREPACK_HOME=/home/container/.cache/corepack
+  export npm_config_cache=/home/container/.cache/npm
+  export PATH="/usr/local/bin:$PATH"
+
+  ghost install --dir /home/container/ghost
+'
 
 echo "🗂️ DEBUG 13"
 
