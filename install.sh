@@ -3,9 +3,6 @@ set -e
 
 cd /mnt/server
 
-echo "🧹 Cleaning previous setup..."
-rm -rf /mnt/server/ghost /mnt/server/.ghost /home/container/ghost || true
-
 echo "🗂️ DEBUG 1"
 
 
@@ -47,8 +44,8 @@ node -v
 echo "🗂️ DEBUG 6"
 
 echo "🗂️ Updating node packages"
-npm outdated
-npm update -g
+npm outdated || true
+npm update -g || true
 
 echo "🗂️ DEBUG 7"
 
