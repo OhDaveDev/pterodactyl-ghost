@@ -68,13 +68,15 @@ mkdir -p \
   /home/container/.cache/node \
   /home/container/.cache/corepack \
   /home/container/.local/share/corepack \
-  /mnt/server/.ghost
+  /mnt/server/.ghost \
+  /mnt/server/ghost
 
 chmod -R 755 \
   /.npm \
   /.cache/yarn \
   /home/container \
-  /mnt/server/.ghost
+  /mnt/server/.ghost \
+  /mnt/server/ghost
 
 chown -R nobody: \
   /mnt/server \
@@ -108,7 +110,7 @@ su -s /bin/ash nobody -c '
   export npm_config_cache=/home/container/.cache/npm
   export PATH="/usr/local/bin:$PATH"
 
-  ghost install local --dir /home/container/ghost
+  ghost install local --dir /mnt/server/ghost --no-start
 '
 
 echo "🗂️ DEBUG 13"
@@ -122,8 +124,9 @@ npm install -g sharp --unsafe-perm --no-audit
 
 echo "🗂️ DEBUG 15"
 
-echo "📦 Moving Ghost to server directory..."
-mv /home/container/ghost /mnt/server/
+echo "📦 Verifying Ghost install..."
+ls -la /mnt/server
+ls -la /mnt/server/ghost
 
 echo "🗂️ DEBUG 16"
 
