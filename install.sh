@@ -124,10 +124,17 @@ npm install -g sharp --unsafe-perm --no-audit
 
 echo "🗂️ DEBUG 15"
 
+# ... existing code ...
+
 echo "🔗 Fixing Ghost current symlink for Pterodactyl runtime..."
 GHOST_VERSION="$(basename "$(readlink /mnt/server/ghost/current)")"
 rm -f /mnt/server/ghost/current
 ln -s "versions/${GHOST_VERSION}" /mnt/server/ghost/current
+
+echo "🛠️ Fixing Ghost runtime config paths..."
+sed -i 's|/mnt/server/ghost/content/data/ghost-local.db|/home/container/ghost/content/data/ghost-local.db|g' /mnt/server/ghost/config.development.json
+sed -i 's|/mnt/server/ghost/content|/home/container/ghost/content|g' /mnt/server/ghost/config.development.json
+mkdir -p /mnt/server/ghost/content/data
 
 echo "📦 Verifying Ghost install..."
 ls -la /mnt/server
