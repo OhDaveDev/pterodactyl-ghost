@@ -3,16 +3,17 @@ set -e
 
 cd /home/container
 
+echo "Starting Ghost CMS..."
 echo "PWD: $(pwd)"
-echo "Listing /home/container:"
-ls -la /home/container
 
-echo "Listing /home/container/ghost:"
-ls -la /home/container/ghost
+if [ ! -d /home/container/ghost ]; then
+  echo "Ghost directory not found."
+  exit 1
+fi
 
 echo "Fixing Ghost current symlink..."
 if [ -d /home/container/ghost/versions ]; then
-  GHOST_VERSION="$(find /home/container/ghost/versions -mindepth 1 -maxdepth 1 -type d | sed 's|.*/||' | sort | tail -n 1)"
+  GHOST_VERSION="$(find /home/container/ghost/versions -mindepth 1 -maxdepth 1 -type d | sed 's|.*/||' | sort -V | tail -n 1)"
 
   if [ -n "${GHOST_VERSION}" ] && [ -d "/home/container/ghost/versions/${GHOST_VERSION}" ]; then
     rm -f /home/container/ghost/current
@@ -27,58 +28,87 @@ else
 fi
 
 echo "Fixing Ghost runtime paths..."
-sed -i 's|/mnt/server/ghost/content/data/ghost-local.db|/home/container/ghost/content/data/ghost-local.db|g' /home/container/ghost/config.development.json
-sed -i 's|/mnt/server/ghost/content|/home/container/ghost/content|g' /home/container/ghost/config.development.json
-sed -i 's|"port": 25566|"port": 2368|g' /home/container/ghost/config.development.json
+
 mkdir -p /home/container/ghost/content/data
 mkdir -p /home/container/ghost/content/logs
 mkdir -p /home/container/ghost/content/themes
 
-echo "Fixing missing Ghost default theme..."
-if [ ! -d /home/container/ghost/content/themes/source ]; then
-  SOURCE_THEME_PATH="$(find /home/container/ghost/current -type d -path '*/themes/source' | head -n 1)"
+cat > /home/container/ghost/config.development.json <<EOF
+{
+  "url": "https://just-mc.com/",
+  "server": {
+    "port": 2368,
+    "host": "127.0.0.1"
+  },
+  "database": {
+    "client": "sqlite3",
+    "connection": {
+      "filename": "/home/container/ghost/content/data/ghost-local.db"
+    }
+  },
+  "mail": {
+    "transport": "Direct"
+  },
+  "logging": {
+    "transports": [
+      "file",
+      "stdout"
+    ]
+  },
+  "process": "local",
+  "security": {
+    "staffDeviceVerification": false
+  },
+  "paths": {
+    "contentPath": "/home/container/ghost/content"
+  }
+}
+EOF
 
-  if [ -n "${SOURCE_THEME_PATH}" ] && [ -d "${SOURCE_THEME_PATH}" ]; then
-    echo "Copying source theme from ${SOURCE_THEME_PATH}"
-    cp -r "${SOURCE_THEME_PATH}" /home/container/ghost/content/themes/source
-  else
-    echo "Could not find source theme in Ghost install."
-    echo "Available theme-like directories:"
-    find /home/container/ghost/current -type d -name themes -o -name source || true
-    exit 1
-  fi
+echo "Ensuring Ghost Source theme exists..."
+if [ ! -d /home/container/ghost/content/themes/source ]; then
+  rm -rf /home/container/ghost/content/themes/source
+  mkdir -p /home/container/ghost/content/themes/source
+
+  mkdir -p /tmp/source-theme
+  rm -rf /tmp/source-theme/*
+
+  curl -fsSL https://github.com/TryGhost/Source/archive/refs/heads/main.tar.gz -o /tmp/source-theme.tar.gz
+  tar -xzf /tmp/source-theme.tar.gz -C /tmp/source-theme --strip-components=1
+  rm -f /tmp/source-theme.tar.gz
+
+  cp -r /tmp/source-theme/. /home/container/ghost/content/themes/source/
+  rm -rf /tmp/source-theme
 fi
 
-echo "Removing stale Ghost PID file..."
 rm -f /home/container/ghost/.ghostpid
 
-echo "Listing fixed Ghost current symlink:"
-ls -la /home/container/ghost/current
-ls -la /home/container/ghost/current/index.js
+echo "Writing Caddyfile..."
+cat > /home/container/caddy/Caddyfile <<EOF
+{
+    admin off
+    http_port ${SERVER_PORT}
+}
 
-echo "Ghost config:"
-cat /home/container/ghost/config.development.json
+:${SERVER_PORT} {
+    encode zstd gzip
+
+    reverse_proxy 127.0.0.1:2368 {
+        header_up Host {host}
+        header_up X-Real-IP {remote_host}
+        header_up X-Forwarded-For {remote_host}
+        header_up X-Forwarded-Proto https
+        header_up X-Forwarded-Host {host}
+    }
+}
+EOF
 
 echo "Starting Caddy..."
-./caddy-server run --watch --config ./caddy/Caddyfile &
+cd /home/container
+./caddy-server run --config ./caddy/Caddyfile &
 
-echo "Starting Ghost..."
+echo "Starting Ghost in foreground..."
 cd /home/container/ghost
 
-set +e
-ghost run
-GHOST_EXIT_CODE="$?"
-set -e
-
-echo "Ghost exited with code: ${GHOST_EXIT_CODE}"
-
-echo "Ghost logs:"
-ls -la /home/container/ghost/content/logs || true
-
-echo "Latest Ghost error log:"
-tail -n 100 /home/container/ghost/content/logs/*error.log || true
-
-echo "Latest Ghost normal log:"
-tail -n 100 /home/container/ghost/content/logs/*.log || true
-
-exit "${GHOST_EXIT_CODE}"
+export NODE_ENV=development
+exec node current/index.js
